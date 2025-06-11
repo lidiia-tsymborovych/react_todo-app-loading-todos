@@ -1,1 +1,1 @@
-export * from './TodoErrorNotification';
+export * from './ErrorNotification';

@@ -1,3 +1,4 @@
+import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
 /* eslint-disable jsx-a11y/label-has-associated-control */
@@ -15,7 +16,7 @@ export const TodoList: React.FC<Props> = ({ todos }) => {
           <div
             key={todo.id}
             data-cy="Todo"
-            className={`todo ${todo.completed ? 'completed' : ''}`}
+            className={cn({ completed: todo.completed })}
           >
             <label className="todo__status-label">
               <input
@@ -28,15 +29,16 @@ export const TodoList: React.FC<Props> = ({ todos }) => {
             <span data-cy="TodoTitle" className="todo__title">
               {todo.title}
             </span>
-            {/* Remove button appears only on hover */}
+
             <button type="button" className="todo__remove" data-cy="TodoDelete">
               ×
             </button>
 
             <div
               data-cy="TodoLoader"
-              className="modal overlay"
-              style={{ display: isLoading ? 'block' : 'none' }}
+              className={cn('modal overlay', {
+                'is-active': isLoading,
+              })}
             >
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />

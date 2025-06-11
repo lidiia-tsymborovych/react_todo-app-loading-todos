@@ -1,3 +1,4 @@
+import cn from 'classnames';
 import { useEffect } from 'react';
 
 type Props = {
@@ -6,7 +7,7 @@ type Props = {
   setError: (value: string) => void;
 };
 
-export const TodoErrorNotification: React.FC<Props> = ({
+export const ErrorNotification: React.FC<Props> = ({
   errorMessage,
   onClose,
   setError,
@@ -26,7 +27,13 @@ export const TodoErrorNotification: React.FC<Props> = ({
   return (
     <div
       data-cy="ErrorNotification"
-      className={`notification is-danger is-light has-text-weight-normal ${errorMessage ? '' : 'hidden'}`}
+      className={cn(
+        'notification',
+        'is-danger',
+        'is-light',
+        'has-text-weight-normal',
+        { hidden: errorMessage },
+      )}
     >
       <button
         data-cy="HideErrorButton"

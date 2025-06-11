@@ -1,42 +1,49 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import { getTodos, USER_ID } from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
-import { TodoErrorNotification } from './components/TodoErrorNotification';
+import { ErrorNotification } from './components/TodoErrorNotification';
 import { TodoFooter } from './components/TodoFooter';
 import { FilterParams } from './types/FilterParams';
+import { Errors } from './types/Errors';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [filter, setFilter] = useState<FilterParams>(FilterParams.All);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setError('');
+    setIsLoading(true);
+    setErrorMessage('');
     getTodos()
       .then(setTodos)
-      .catch(() => setError('Unable to load todos'));
+      .catch(() => setErrorMessage(Errors.loadingUnable))
+      .finally(() => setIsLoading(false));
   }, []);
+
+  const visibleTodos = todos.filter(todo => {
+    switch (filter) {
+      case FilterParams.Active:
+        return !todo.completed;
+      case FilterParams.Completed:
+        return todo.completed;
+      default:
+        return todo;
+    }
+  });
+
+  const allTodosCompleted = useMemo(() => {
+    return todos.every(todo => todo.completed);
+  }, [todos]);
+
+  const resetError = () => setErrorMessage('');
 
   if (!USER_ID) {
     return <UserWarning />;
   }
-
-  const visibleTodos = todos.filter(todo => {
-    if (filter === FilterParams.Active) {
-      return !todo.completed;
-    }
-
-    if (filter === FilterParams.Completed) {
-      return todo.completed;
-    }
-
-    return true;
-  });
-
-  const resetError = () => setError('');
-  const allTodosCompleted = todos.every(todo => todo.completed);
 
   return (
     <div className="todoapp">
@@ -46,7 +53,9 @@ export const App: React.FC = () => {
         <header className="todoapp__header">
           <button
             type="button"
-            className={`todoapp__toggle-all ${allTodosCompleted && todos.length > 0 ? 'active' : ''}`}
+            className={cn('todoapp__toggle-all', {
+              active: allTodosCompleted && Boolean(todos.length),
+            })}
             data-cy="ToggleAllButton"
           />
 
@@ -61,17 +70,17 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        <TodoList todos={visibleTodos} />
+        {!isLoading && <TodoList todos={visibleTodos} />}
 
-        {todos.length > 0 && (
+        {Boolean(todos.length) && (
           <TodoFooter todos={todos} filter={filter} setFilter={setFilter} />
         )}
       </div>
 
-      <TodoErrorNotification
-        errorMessage={error}
+      <ErrorNotification
+        errorMessage={errorMessage}
         onClose={resetError}
-        setError={setError}
+        setError={setErrorMessage}
       />
     </div>
   );

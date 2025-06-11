@@ -1,3 +1,5 @@
+import cn from 'classnames';
+import { useMemo } from 'react';
 import { FilterParams } from '../../types/FilterParams';
 import { Todo } from '../../types/Todo';
 
@@ -8,8 +10,15 @@ type Props = {
 };
 
 export const TodoFooter: React.FC<Props> = ({ todos, filter, setFilter }) => {
-  const anyCompletedTodo = todos.some(todo => todo.completed);
-  const itemsLeft = todos.filter(todo => !todo.completed).length;
+  const anyCompletedTodo = useMemo(
+    () => todos.some(todo => todo.completed),
+    [todos],
+  );
+
+  const itemsLeft = useMemo(
+    () => todos.filter(todo => !todo.completed).length,
+    [todos],
+  );
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -23,7 +32,7 @@ export const TodoFooter: React.FC<Props> = ({ todos, filter, setFilter }) => {
             <a
               key={value}
               href={`#/${value}`}
-              className={`filter__link ${filter === value ? 'selected' : ''}`}
+              className={cn('filter__link', { selected: filter === value })}
               data-cy={`FilterLink${key}`}
               onClick={() => setFilter(value)}
             >
