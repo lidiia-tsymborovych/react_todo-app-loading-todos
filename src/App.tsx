@@ -1,39 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import cn from 'classnames';
 import { UserWarning } from './UserWarning';
-import { getTodos, USER_ID } from './api/todos';
-import { Todo } from './types/Todo';
+import { USER_ID } from './api/todos';
 import { TodoList } from './components/TodoList';
 import { ErrorNotification } from './components/TodoErrorNotification';
 import { TodoFooter } from './components/TodoFooter';
-import { FilterParams } from './types/FilterParams';
-import { Errors } from './types/Errors';
+import { useTodos } from './hooks/useTodos';
+import { useFilteredTodos } from './hooks/useFilteredTodos';
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [filter, setFilter] = useState<FilterParams>(FilterParams.All);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    setIsLoading(true);
-    setErrorMessage('');
-    getTodos()
-      .then(setTodos)
-      .catch(() => setErrorMessage(Errors.loadingUnable))
-      .finally(() => setIsLoading(false));
-  }, []);
-
-  const visibleTodos = todos.filter(todo => {
-    switch (filter) {
-      case FilterParams.Active:
-        return !todo.completed;
-      case FilterParams.Completed:
-        return todo.completed;
-      default:
-        return todo;
-    }
-  });
+  const { todos, errorMessage, setErrorMessage, isLoading } = useTodos();
+  const { visibleTodos, filter, setFilter } = useFilteredTodos(todos);
 
   const allTodosCompleted = useMemo(() => {
     return todos.every(todo => todo.completed);

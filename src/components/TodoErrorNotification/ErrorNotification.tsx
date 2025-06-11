@@ -32,7 +32,7 @@ export const ErrorNotification: React.FC<Props> = ({
         'is-danger',
         'is-light',
         'has-text-weight-normal',
-        { hidden: errorMessage },
+        { hidden: !errorMessage },
       )}
     >
       <button
